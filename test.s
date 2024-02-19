@@ -2,7 +2,7 @@
 a: 
 	.skip 40
 i: 
-	.word
+	.word 0
 .text
 .global main
 main:
