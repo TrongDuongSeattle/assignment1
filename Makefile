@@ -1,9 +1,9 @@
 # search and replace 
 # %s/term/replacement_term/g
-all: nestedforas
-first: nestedforas.o
-	gcc -static  -o nestedforas nestedforas.o
-first.o: nestedforasas.s
-	as -o nestedforasas.o nestedforas.s
+all: nestedForTest
+first: nestedForTest.o
+	gcc -static  -o nestedForTest nestedForTest.o
+first.o: nestedForTestas.s
+	as -o nestedForTestas.o nestedForTest.s
 clean: 
-	rm -vf nestedforas *.o
+	rm -vf nestedForTest *.o
