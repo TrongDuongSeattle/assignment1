@@ -14,7 +14,7 @@ highGuess:
 lowGuess:
 	.asciz "Too low. Guess again. " 
 justRight:
-	.asciz "You guessed correctly in %d tries!"
+	.asciz "You guessed correctly in %d tries!\n"
 count: 
 	.word 1
 
@@ -24,8 +24,19 @@ main:
 str lr, [sp, #-4]!
 
 push {r0}
+/*
+mov r0, #0
+bl time			//rand returns random number to r0
+mov r1, r0		//move to r1, the value at r0
+ldr r2, =randInt//load r2 with address of randInt
+str r1, [r2]	//str to register 1, the value at register 2
+*/
+ldr r0, =randInt
+ldr r0, [r0]
+bl time
+bl srand			//rand returns random number to r0
 
-bl rand			//rand returns random number to r0
+bl rand
 mov r1, r0		//move to r1, the value at r0
 ldr r2, =randInt//load r2 with address of randInt
 str r1, [r2]	//str to register 1, the value at register 2
@@ -115,3 +126,5 @@ bx lr
 .global printf
 .global scanf
 .global rand
+.global time
+.global srand
