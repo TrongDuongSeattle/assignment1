@@ -36,7 +36,7 @@ loop:
 ldr r2, =i
 ldr r3, [r2] //get value of i
 add r4, r1, r3, LSL #2
-
+//generate random num
 bl randomNumberGenerator
 continue:
 
@@ -65,18 +65,13 @@ ldr r2, =i
 ldr r3, [r2]
 cmp r3, #5
 blt loop
-mov r0, #0
+mov r4, #0
 b readloop
 
 
 randomNumberGenerator: 
 push {r0 - r5}
-/*
-ldr r0, =randInt
-ldr r1, [r0]
-bl time
-bl srand			//rand returns random number to r0
-*/
+
 ldr r0, =randInt
 ldr r1, [r0]
 bl rand
@@ -85,7 +80,7 @@ mov r1, r0		//move to r1, the value at r0
 ldr r2, =randInt//load r2 with address of randInt
 str r1, [r2]	//str to register 1, the value at register 2
 
-//divide by 10
+// % 99 = (n -  (n/m)*m)
 mov r4, #99
 ldr r1, =randInt
 ldr r2, [r1]
@@ -94,30 +89,28 @@ mul r5, r3, r4
 sub r2, r2, r5
 str r2, [r1] //str the final value back to r1, randInt
 
-ldr r0, =getNum
-ldr r1, =randInt
-ldr r1, [r1]
-bl printf
 pop {r0 - r5}
-
 bl continue
-readloop:
 
-	cmp r0, #5
+readloop:
+	cmp r4, #5
 	beq end
 	ldr r1, =array
-	lsl r2, r0, #2
+	lsl r2, r4, #2
 	add r2, r1, r2
 	ldr r1, [r2]
 	push {r0 - r2}
 	ldr r0, =testPrompt
 	mov r2, r1
-	mov r1, r0
+	mov r1, r4
 	bl printf
 	pop {r0 - r2}
-	add r0, r0, #1
+	add r4, r4, #1
 	b readloop
+
 end:
+	ldr r0,=getNum
+	bl scanf
 
 ldr lr, [sp], #4
 
@@ -125,3 +118,4 @@ ldr lr, [sp], #4
 .global rand
 .global srand
 .global time
+.global scanf
