@@ -21,7 +21,8 @@ testI:
 testJ:
 .asciz "in j loop "
 testSelSort:
-.ascii "in selectionSort"
+.ascii "in selectionSort\n"
+
 printValue:
 .asciz "%d "
 .text
@@ -121,12 +122,6 @@ mov r4, #0		//minimum, should i make this global?
 b selectionTest		// branch to test
 
 innerbody:
-//test print
-push {r0 - r3}
-ldr r0, =testJ
-bl printf
-pop {r0 - r3}
-
 ldr r2, =j
 ldr r3, [r2]
 mov r4, r3		//minimum = j
@@ -135,39 +130,54 @@ mov r4, r3		//minimum = j
 add r3, r3, #1
 str r3, [r2]	//
 
-cmp r3, #5		//compare j and 5, 
+cmp r3, #5		//compare i and j, 
 blt innerbody 
 
-body:
-push {r0 - r3}
-ldr r0, =testI
-ldr r1, =i
-ldr r1, [r1]
-bl printf
-pop {r0 - r3}
+b	increment_i
+
+increment_i:
 ldr r0, =i
 ldr r1, [r0]	//loading to r1, the value at [r0] 
 add r2, r1, #1	//incrementing i
-str r2, [r0]	//store to r1, the value at r0
+str r2, [r0]	//store to r1, the value at r0		
 
+reset_j_to_0:
+ldr r2, =j		//resetting j to 0
+ldr r3, [r2]
+mov r3, #0
+str r3, [r2]					
+
+b	selectionTest
+
+
+body:
 ldr r2, =j		//load to r2, the adress of j
 ldr r3, [r2]	//load to r3, the value at r2 from main memory
 add r3, r1, #1  //j = i + 1
 str r3, [r2]
 
+//if statement
+ldr r5, =array
+lsl r6, r3, #2	//r6 offset
+add r6, r5, r6
+//str	r3, [r6]    //I JUST WANT ARRAY [J]
+
+ldr r7, =array
+add r7, r7, r4		//hoping this means array[minimum]
+
+push {r0 - r3}
+ldr r0, =getNum 
+ldr r1, [r7]
+bl printf
+pop {r0 - r3}
+
 cmp r1, #5		//compare i and 5, 
 blt innerbody 
-
-
-
-ldr r2, =j		//resetting j to 0
-ldr r3, [r2]
-mov r3, #0
-str r3, [r2]
 
 selectionTest: 
 ldr r0, =i
 ldr r1, [r0]	//load into r1 value of i from r0
+mov r4, r1		//minimum = j
 cmp r1, #5		//cmp to 5
 blt body		// branch if less than to body
 pop {r0 - r3}
