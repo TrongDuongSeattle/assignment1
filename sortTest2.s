@@ -34,7 +34,7 @@ testAfterStore:
 testAfterRand:
 	.asciz "\t\tAfter rand, rand number is: %d\n"
 testSwap:
-	.asciz "in swap\n"
+	.asciz "swapping %d with %d\n"
 testMin:
 	.asciz "minimum is: %d\n"
 printValue:
@@ -83,7 +83,7 @@ selectionSort:
 //i, j, minimum
 //this calls another function remember to save lr
 push {r1 - r8, lr}
-mov r3, #0			//r3 = minimum = 0;
+mov r10, #0			//r3 = minimum = 0;
 mov r1, #0			//r1 = i
 mov r2, #0			//r2 = j 
 ldr r4, =array		//r4 = &array[0] 
@@ -95,21 +95,21 @@ ldr r4, =array		//r4 = &array[0]
 b test2
 
 loop2:
-mov r3, r1		//minimum = i
+mov r10, r1		//minimum = i
 add r2, r1, #1  //j = i + 1
 	//test print
-	push {r0 - r3}
+	push {r0 - r10}
 	ldr r0, =testMin
-	mov r1, r3
+	mov r1, r10
 	bl printf
-	pop {r0 - r3}
+	pop {r0 - r10}
 b nestedLoopTest
 
 nestedLoopBody:
 	add r5, r4, r2, lsl #2		//r5 = &array[j]	
 	ldr r6, [r5]				//r6 = *array[j]
 	
-	add r7, r4, r3, lsl #2		//r7 = &array[minimum]
+	add r7, r4, r10, lsl #2		//r7 = &array[minimum]
 	ldr r8, [r7]				//r8 = *array[minimum]
 	
 	//test print " comparing array[j] < array [minimum]
@@ -126,23 +126,14 @@ nestedLoopBody:
 	bl printf
 	pop {r0 - r2}
 
-	/*
-	push {r0 - r3}
-	ldr r0, =testMin
-	mov r1, r3
-	bl printf
-	pop {r0 - r3}
-	*/
-
 	cmp r6, r8		// array[j] < array[minimum}
-	movlt r3, r2    // r3 = minimum = j = r2 	
-	/*
-	push {r0 - r3}
+	movlt r10, r2    // r10 = minimum = j = r2 	
+
+	push {r0 - r10}
 	ldr r0, =testMin
-	mov r1, r3
+	mov r1, r10
 	bl printf
-	pop {r0 - r3}
-	*/
+	pop {r0 - r10}
 	
 	//increment j
 	add r2, r2, #1
@@ -150,25 +141,14 @@ nestedLoopBody:
 nestedLoopTest:
 cmp r2, #5		// j < 5?
 blt nestedLoopBody
-//push r6 r8?
-			/*
-			push {r0 - r1}
-			ldr r0, =finishloop
-			bl printf
-			pop {r0 - r1}
-			*/
+
 push {lr}
 bl swap
 pop {lr}
 add r1, r1, #1	// i++
+
 mov r2, #0		//set j back to 0
 test2:
-			/*
-			push {r0 - r1}
-			ldr r0, =testI
-			bl printf
-			pop {r0 - r1}
-			*/
 //r1 = i = 0
 cmp r1, #5		//i < 5?	
 blt loop2
@@ -176,7 +156,7 @@ pop {r1 - r8, lr}
 bx lr
 
 swap: 
-push {r1 - r8, lr}
+push {r1 - r5, lr}
 
 //r1 = i
 //r2 = j  over written to &array[i]
@@ -185,18 +165,20 @@ push {r1 - r8, lr}
 //r7 = &array[minimum]
 //r8 = array[minimum]
 add r0, r4, r1, lsl #2	//r2 =  &array[i]
-add r1, r4, r3, lsl #2	//r2 =  &array[minimum]
+add r1, r4, r10, lsl #2	//r2 =  &array[minimum]
+			push {r0 - r5}
+			ldr r2, [r1]
+			ldr r1, [r0]
+			ldr r0, =testSwap
+			bl printf
+			pop {r0 - r5}
 //mov r10, r3				//r10 contains copy of array [i]
 ldr	r2, [r0]			// r2 = temp = *array[i]
 ldr r5, [r1]			// r5 = *array[minimum]
 str r2, [r1]			// 
 str r5, [r0]
-			push {r0}
-			ldr r0, =testSwap
-			bl printf
-			pop {r0}
-
-pop {r1 - r8, lr}
+bl printArray
+pop {r1 - r5, lr}
 bx lr
 
 printArray:
@@ -210,7 +192,6 @@ printArray:
 			add r2, r1, r2	//r2 now contains memory address of array[i]
 			ldr r1, [r2]	//r1 contains VALUE off array[i], r1 = array[i] 
 			
-			
 			push {r0 - r2}		
 			mov r2, r1 
 			mov r1, r0 
@@ -218,7 +199,6 @@ printArray:
 			bl printf
 			pop {r0 - r2}
 			
-
 			add r0, r0, #1
 			b printArrayLoop
 	pop {lr}
